@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Панель управления</h2>
+            <p>Добро пожаловать, <strong>{{ full_name }}</strong>!</p>
+            <p>Ваша роль: <span class="badge bg-primary">{{ role }}</span></p>
+        </div>
+    </div>
+    
+    {% if stats %}
+    <div class="row mb-4">
+        {% for key, value in stats.items() %}
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>{{ value }}</h3>
+                    <p class="text-muted">{{ key|replace('_', ' ')|title }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if recent_results %}
+    <div class="card">
+        <div class="card-header">
+            <h5>Последние результаты</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Студент</th>
+                            <th>Дисциплина</th>
+                            <th>Тема</th>
+                            <th>Результат</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in recent_results %}
+                        <tr>
+                            <td>{{ result[0] }}</td>
+                            <td>{{ result[1] }}</td>
+                            <td>{{ result[2] }}</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar" style="width: {{ result[3] }}%">
+                                        {{ "%.1f"|format(result[3]) }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ result[4] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

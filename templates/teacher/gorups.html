@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Мои группы</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Выберите группы, с которыми вы работаете:</label>
+                            <div class="border p-3 rounded" style="max-height: 400px; overflow-y: auto;">
+                                {% if all_groups %}
+                                    {% for group in all_groups %}
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="groups" value="{{ group }}" 
+                                               id="group_{{ loop.index }}" {% if group in current_groups %}checked{% endif %}>
+                                        <label class="form-check-label" for="group_{{ loop.index }}">
+                                            {{ group }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted mb-0">Нет созданных групп. Сначала добавьте студентов с группами.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if all_groups %}
+                        <button type="submit" class="btn btn-primary">Сохранить настройки</button>
+                        {% endif %}
+                        <a href="{{ url_for('teacher_tests') }}" class="btn btn-secondary">Назад</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Информация</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Как это работает:</h5>
+                    <ol>
+                        <li>Выберите группы, с которыми вы работаете</li>
+                        <li>При создании теста вы сможете выбрать, для каких из этих групп он будет доступен</li>
+                        <li>Студенты из выбранных групп увидят тест в своем списке</li>
+                        <li>Студенты из других групп не увидят этот тест</li>
+                    </ol>
+                    
+                    <div class="alert alert-info mt-3">
+                        <strong>Текущие группы:</strong><br>
+                        {% if current_groups %}
+                            {% for group in current_groups %}
+                                <span class="badge bg-primary">{{ group }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-muted">Группы не выбраны</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Примечание:</strong> Тесты, созданные ранее, останутся доступными для всех групп.
+                        Чтобы ограничить доступ к старым тестам, создайте их заново.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

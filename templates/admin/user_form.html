@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>{% if edit_mode %}Редактирование пользователя{% else %}Добавление пользователя{% endif %}</h4>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+                    
+                    <form method="POST">
+                        {% if not edit_mode %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Логин *</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <small class="text-muted">Уникальный логин для входа в систему</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Пароль *</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <small class="text-muted">Минимум 6 символов</small>
+                        </div>
+                        {% else %}
+                        <div class="mb-3">
+                            <label class="form-label">Логин</label>
+                            <input type="text" class="form-control" value="{{ user.username }}" disabled>
+                            <small class="text-muted">Логин нельзя изменить</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">Новый пароль (оставьте пустым, чтобы не менять)</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">ФИО *</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" 
+                                   value="{{ user.full_name if user else '' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="role" class="form-label">Роль *</label>
+                            <select class="form-control" id="role" name="role" required>
+                                <option value="student" {% if user and user.role == 'student' %}selected{% endif %}>Студент</option>
+                                <option value="teacher" {% if user and user.role == 'teacher' %}selected{% endif %}>Преподаватель</option>
+                                <option value="admin" {% if user and user.role == 'admin' %}selected{% endif %}>Администратор</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="group_name" class="form-label">Группа (для студентов)</label>
+                            <input type="text" class="form-control" id="group_name" name="group_name" 
+                                   value="{{ user.group_name if user else '' }}">
+                            <small class="text-muted">Например: ИС-21, ПИ-31 и т.д.</small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">Отмена</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if edit_mode %}Сохранить изменения{% else %}Создать пользователя{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

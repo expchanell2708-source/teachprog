@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">{{ test.title }}</h2>
+            {% if test.description %}
+            <p class="mb-0 mt-2">{{ test.description }}</p>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('submit_test', test_id=test.id) }}" id="testForm">
+                {% for question in questions %}
+                <div class="question-card card mb-4">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong class="h5 mb-0">Вопрос {{ loop.index }}</strong>
+                            <span class="badge bg-info text-white">{{ question.points }} баллов</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="h6 mb-4">{{ question.text }}</p>
+                        
+                        <div class="answers-list">
+                            {% for answer in question.answers %}
+                            <div class="form-check mb-3 p-3 border rounded hover-shadow">
+                                <input class="form-check-input" 
+                                       type="checkbox" 
+                                       name="question_{{ question.id }}" 
+                                       value="{{ answer.id }}" 
+                                       id="q{{ question.id }}_a{{ answer.id }}"
+                                       style="width: 20px; height: 20px; cursor: pointer;">
+                                <label class="form-check-label ms-3" 
+                                       for="q{{ question.id }}_a{{ answer.id }}"
+                                       style="cursor: pointer; font-size: 1.1rem;">
+                                    {{ answer.text }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('student_tests') }}" class="btn btn-secondary btn-lg">← Отмена</a>
+                    <button type="submit" class="btn btn-success btn-lg" onclick="return confirmSubmit();">
+                        ✅ Отправить ответы
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-shadow:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+.question-card {
+    transition: transform 0.2s;
+}
+.question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+.form-check-input:checked + .form-check-label {
+    color: #28a745;
+    font-weight: bold;
+}
+</style>
+
+<script>
+let formChanged = false;
+
+// Отслеживаем изменения в форме
+document.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.addEventListener('change', () => { 
+        formChanged = true; 
+    });
+});
+
+// Предупреждение при попытке уйти со страницы
+window.addEventListener('beforeunload', (e) => {
+    if (formChanged) {
+        e.preventDefault();
+        e.returnValue = 'Вы не сохранили ответы. Вы уверены, что хотите покинуть страницу?';
+    }
+});
+
+// Подтверждение отправки
+function confirmSubmit() {
+    if (formChanged) {
+        return confirm('Вы уверены, что хотите отправить ответы? После отправки изменить ответы будет нельзя.');
+    }
+    return confirm('Вы уверены, что хотите отправить ответы?');
+}
+
+// Подсветка выбранных ответов
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.form-check-input');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const parentDiv = this.closest('.form-check');
+            if (this.checked) {
+                parentDiv.style.backgroundColor = '#e8f5e9';
+                parentDiv.style.borderLeft = '4px solid #28a745';
+            } else {
+                parentDiv.style.backgroundColor = '';
+                parentDiv.style.borderLeft = '';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
