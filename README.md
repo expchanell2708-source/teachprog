@@ -5,7 +5,9 @@ FLASK_DEBUG=True
 SECRET_KEY=your-secret-key-here
 DATABASE_PATH=knowledge_test.db
 HOST=127.0.0.1
-PORT=5000Прописать эти команды в VSCode по очереди:
+PORT=5000
+
+Пропишите эти команды в консоли VSCode по очереди:
 
 1. python --version (Должно вывести: Python 3.11.x или выше)
 2. python -m venv venv
