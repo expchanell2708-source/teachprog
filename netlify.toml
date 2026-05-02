@@ -1,0 +1,11 @@
+[build]
+  command = "pip install -r requirements.txt"
+  publish = "."
+
+[dev]
+  command = "flask run --host=0.0.0.0 --port=8888"
+  targetPort = 8888
+
+[build.environment]
+  FLASK_APP = "app.py"  # замените на имя вашего главного файла
+  FLASK_DEBUG = "1"
