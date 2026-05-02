@@ -1,5 +1,6 @@
 # teachprog
 Создайте файл .env в корне проекта, если его нет, со следующим содержимым:
+
 FLASK_APP=app.py
 FLASK_DEBUG=True
 SECRET_KEY=your-secret-key-here
@@ -26,7 +27,8 @@ Press CTRL+C to quit
 
 ДЛЯ ДЕАКВТИАЦИИ НАЖМИТЕ КЛАВИШИ CTRL+C
 
-Возможные проблемы и их решение
+ВОЗМОЖНЫЕ ОШИБКИ И ИХ РЕШЕНИЯ
+
 Ошибка: "Python was not found"
 Решение: Python не установлен или не добавлен в PATH. Установите Python заново, отметив галочку "Add Python to PATH".
 
