@@ -1,40 +1,8 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container">
-    <h2 class="mb-4">Доступные тесты</h2>
-    
-    {% if tests %}
-    <div class="row">
-        {% for test in tests %}
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ test.title }}</h5>
-                    <p class="card-text text-muted">{{ test.description or 'Нет описания' }}</p>
-                    <p class="card-text">
-                        <small>Преподаватель: {{ test.teacher_name }}</small><br>
-                        <small>Создан: {{ test.created_at[:10] }}</small>
-                    </p>
-                    
-                    {% if test.completed %}
-                        <div class="alert alert-info">
-                            Вы уже прошли этот тест<br>
-                            Ваш результат: <strong>{{ "%.1f"|format(test.last_score) }}%</strong>
-                        </div>
-                        <a href="{{ url_for('test_result', result_id=test.id) }}" class="btn btn-secondary">Посмотреть результат</a>
-                    {% else %}
-                        <a href="{{ url_for('take_test', test_id=test.id) }}" class="btn btn-primary">Пройти тест</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="alert alert-info">
-        Пока нет доступных тестов. Обратитесь к преподавателю.
-    </div>
-    {% endif %}
-</div>
+<div class="container"><h2>Доступные тесты</h2>
+{% if tests %}<div class="row">{% for t in tests %}<div class="col-md-6 mb-4"><div class="card"><div class="card-body"><h5>{{ t.title }}</h5><p>{{ t.description or '' }}</p><p><small>Преподаватель: {{ t.creator_name }}</small><br><small>Создан: {{ t.created_at[:10] }}</small></p>
+{% if t.completed %}<div class="alert alert-info">Результат: <strong>{{ "%.1f"|format(t.last_score) }}%</strong></div><a href="{{ url_for('test_result', result_id=t.id) }}" class="btn btn-secondary">Посмотреть результат</a>
+{% else %}<a href="{{ url_for('take_test', test_id=t.id) }}" class="btn btn-primary">Пройти тест</a>{% endif %}</div></div></div>{% endfor %}</div>
+{% else %}<div class="alert alert-info">Нет доступных тестов</div>{% endif %}</div>
 {% endblock %}
