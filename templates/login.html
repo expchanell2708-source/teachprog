@@ -1,33 +1,21 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="login-container">
-    <div class="login-card">
-        <h2 class="text-center mb-4">📚 Система контроля знаний</h2>
-        
-        {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-        
-        <form method="POST">
-            <div class="mb-3">
-                <label for="username" class="form-label">Имя пользователя</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+<div class="container" style="max-width: 500px; margin-top: 100px;">
+    <div class="card">
+        <div class="card-header text-center"><h3>Вход в систему</h3></div>
+        <div class="card-body">
+            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+            <form method="POST">
+                <div class="mb-3"><input type="text" name="username" class="form-control" placeholder="Имя пользователя" required></div>
+                <div class="mb-3"><input type="password" name="password" class="form-control" placeholder="Пароль" required></div>
+                <button type="submit" class="btn btn-primary w-100">Войти</button>
+            </form>
+            <hr>
+            <div class="text-muted small">
+                <p class="mb-1"><strong>Тестовые учетные записи:</strong></p>
+                <p class="mb-1">Администратор: admin / admin123</p>
+                <p class="mb-0">Студент: student / student123</p>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Пароль</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Войти</button>
-        </form>
-        
-        <div class="mt-3 text-center text-muted small">
-            <p>Тестовые учетные записи:</p>
-            <p>Админ: admin / admin123</p>
-            <p>Преподаватель: teacher / teacher123</p>
-            <p>Преподаватель: teacher1 / teacher123</p>
-            <p>Студент: student / student123</p>
-            <p>Студент: student1 / student123</p>
         </div>
     </div>
 </div>
