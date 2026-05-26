@@ -1,109 +1,32 @@
 {% extends "base.html" %}
-
 {% block content %}
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Панель управления администратора</h2>
         <div>
-            <a href="{{ url_for('admin_users') }}" class="btn btn-primary">👥 Управление пользователями</a>
-            <a href="{{ url_for('admin_stats') }}" class="btn btn-info">📊 Статистика</a>
+            <a href="{{ url_for('admin_tests') }}" class="btn btn-primary">📋 Все тесты</a>
+            <a href="{{ url_for('admin_create_test') }}" class="btn btn-success">➕ Создать тест</a>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-info">👥 Пользователи</a>
         </div>
     </div>
-    
     <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center bg-primary text-white">
-                <div class="card-body">
-                    <h3>{{ stats.teachers }}</h3>
-                    <p>Преподавателей</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center bg-success text-white">
-                <div class="card-body">
-                    <h3>{{ stats.students }}</h3>
-                    <p>Студентов</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center bg-info text-white">
-                <div class="card-body">
-                    <h3>{{ stats.tests }}</h3>
-                    <p>Всего тестов</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center bg-warning text-white">
-                <div class="card-body">
-                    <h3>{{ stats.results }}</h3>
-                    <p>Пройдено тестов</p>
-                </div>
-            </div>
-        </div>
+        <div class="col-md-4"><div class="card text-center bg-primary text-white"><div class="card-body"><h3>{{ stats.students }}</h3><p>Студентов</p></div></div></div>
+        <div class="col-md-4"><div class="card text-center bg-success text-white"><div class="card-body"><h3>{{ stats.tests }}</h3><p>Всего тестов</p></div></div></div>
+        <div class="col-md-4"><div class="card text-center bg-info text-white"><div class="card-body"><h3>{{ stats.results }}</h3><p>Пройдено тестов</p></div></div></div>
     </div>
-    
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Последние созданные тесты</h5>
+    <div class="card">
+        <div class="card-header"><h5>Последние созданные тесты</h5></div>
+        <div class="card-body">
+            {% if recent_tests %}
+            <div class="list-group">
+                {% for test in recent_tests %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div><strong>{{ test.title }}</strong><br><small class="text-muted">Создал: {{ test.creator_name }}</small></div>
+                    <div><a href="{{ url_for('admin_test_details', test_id=test.id) }}" class="btn btn-sm btn-info">Просмотр</a><a href="{{ url_for('admin_test_results', test_id=test.id) }}" class="btn btn-sm btn-success">Результаты</a></div>
                 </div>
-                <div class="card-body">
-                    {% if recent_tests %}
-                    <div class="list-group">
-                        {% for test in recent_tests %}
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ test.title }}</strong><br>
-                                    <small class="text-muted">Автор: {{ test.teacher_name }}</small>
-                                </div>
-                                <small>{{ test.created_at[:10] }}</small>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="text-muted">Нет созданных тестов</p>
-                    {% endif %}
-                </div>
+                {% endfor %}
             </div>
-        </div>
-        
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Последние результаты</h5>
-                </div>
-                <div class="card-body">
-                    {% if recent_results %}
-                    <div class="list-group">
-                        {% for result in recent_results %}
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ result.student_name }}</strong><br>
-                                    <small class="text-muted">Тест: {{ result.title }}</small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge {% if result.percentage >= 60 %}bg-success{% else %}bg-danger{% endif %}">
-                                        {{ "%.1f"|format(result.percentage) }}%
-                                    </span>
-                                    <br>
-                                    <small>{{ result.completed_at[:10] }}</small>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="text-muted">Нет результатов</p>
-                    {% endif %}
-                </div>
-            </div>
+            {% else %}<p class="text-muted">Нет созданных тестов</p>{% endif %}
         </div>
     </div>
 </div>

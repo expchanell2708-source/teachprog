@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>{{ result.full_name }}</h2>
+    <p>Тест: {{ result.test_title }} | {{ result.completed_at[:16] }}</p>
+    <div class="alert alert-info text-center"><h3>{{ "%.1f"|format(result.percentage) }}%</h3><p>{{ result.score }}/{{ result.max_score }} баллов</p></div>
+    {% set ns = namespace(qid=None) %}
+    {% for a in answers %}
+        {% if ns.qid != a.question_id %}
+            {% if ns.qid is not none %}</div><div class="card-footer"><strong>Правильные ответы:</strong><br>{% for c in correct_by_question.get(a.question_id, []) %}<span class="badge bg-success">✓ {{ c }}</span>{% endfor %}</div></div>{% endif %}
+            {% set ns.qid = a.question_id %}
+            <div class="card mb-3"><div class="card-header bg-light"><strong>{{ a.question_text }}</strong> ({{ a.points }} баллов)</div><div class="card-body">
+        {% endif %}
+        <div class="mb-2 p-2 border rounded {% if a.is_correct %}bg-success bg-opacity-25{% else %}bg-danger bg-opacity-25{% endif %}">
+            {{ a.answer_text or 'Нет ответа' }}
+            {% if a.is_correct %}<span class="badge bg-success float-end">✓</span>{% else %}<span class="badge bg-danger float-end">✗</span>{% endif %}
+        </div>
+        {% if loop.last %}</div><div class="card-footer"><strong>Правильные ответы:</strong><br>{% for c in correct_by_question.get(a.question_id, []) %}<span class="badge bg-success">✓ {{ c }}</span>{% endfor %}</div></div>{% endif %}
+    {% endfor %}
+    <a href="{{ url_for('admin_test_results', test_id=result.test_id) }}" class="btn btn-secondary">← Назад</a>
+</div>
+<style>.bg-success.bg-opacity-25{background-color:rgba(40,167,69,0.25)!important}.bg-danger.bg-opacity-25{background-color:rgba(220,53,69,0.25)!important}</style>
+{% endblock %}

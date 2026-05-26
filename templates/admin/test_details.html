@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header"><h2>{{ test.title }}</h2>{% if test.description %}<p class="mt-2">{{ test.description }}</p>{% endif %}</div>
+        <div class="card-body">
+            {% for q in questions %}
+            <div class="card mb-3"><div class="card-header bg-light"><strong>Вопрос {{ loop.index }}</strong> - {{ q.points }} баллов</div><div class="card-body"><p>{{ q.text }}</p><ul class="list-group">{% for a in q.answers %}<li class="list-group-item {% if a.is_correct %}list-group-item-success{% endif %}">{{ a.answer_text }}{% if a.is_correct %} <span class="badge bg-success float-end">✓ Правильный</span>{% endif %}</li>{% endfor %}</ul></div></div>
+            {% endfor %}
+            <a href="{{ url_for('admin_tests') }}" class="btn btn-secondary">← Назад</a>
+            <a href="{{ url_for('admin_test_results', test_id=test.id) }}" class="btn btn-primary">📊 Результаты</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

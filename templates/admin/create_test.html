@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header"><h2>Создание нового теста</h2></div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3"><label class="form-label">Название теста</label><input type="text" name="title" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Описание</label><textarea name="description" class="form-control" rows="3"></textarea></div>
+                <div class="mb-3">
+                    <label class="form-label">Доступные группы</label>
+                    <div class="border p-3 rounded">
+                        <div class="form-check"><input type="checkbox" name="target_groups" value="1" id="g1"><label for="g1">Группа 1</label></div>
+                        <div class="form-check"><input type="checkbox" name="target_groups" value="2" id="g2"><label for="g2">Группа 2</label></div>
+                        <div class="form-check"><input type="checkbox" name="target_groups" value="3" id="g3"><label for="g3">Группа 3</label></div>
+                    </div>
+                </div>
+                <div id="questions-container">
+                    <div class="question-item card mb-3">
+                        <div class="card-body">
+                            <div class="mb-3"><label class="form-label">Вопрос</label><input type="text" name="question_text[]" class="form-control" required></div>
+                            <div class="mb-3"><label class="form-label">Баллы</label><input type="number" name="points[]" value="1" min="1" style="width:100px" class="form-control"></div>
+                            <div class="mb-3">
+                                <label class="form-label">Варианты ответов</label>
+                                <div class="answers-container" data-q="0">
+                                    <div class="answer-row mb-2"><input type="text" name="answers_0[]" class="form-control mb-1" placeholder="Вариант ответа 1" required>
+                                    <div class="form-check"><input class="form-check-input" type="checkbox" name="correct_0[]" value="0"><label class="form-check-label">Правильный ответ</label></div></div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-secondary add-answer" data-q="0">+ Добавить вариант</button>
+                            </div>
+                            <button type="button" class="btn btn-danger btn-sm remove-question">Удалить вопрос</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success" id="addQuestion">+ Добавить вопрос</button>
+                <button type="submit" class="btn btn-primary">Создать тест</button>
+                <a href="{{ url_for('admin_tests') }}" class="btn btn-secondary">Отмена</a>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+let qCount=1;
+document.getElementById('addQuestion').onclick=function(){
+    const c=document.getElementById('questions-container');
+    const div=document.createElement('div');div.className='question-item card mb-3';
+    div.innerHTML=`<div class="card-body"><div class="mb-3"><label class="form-label">Вопрос</label><input type="text" name="question_text[]" class="form-control" required></div><div class="mb-3"><label class="form-label">Баллы</label><input type="number" name="points[]" value="1" min="1" class="form-control" style="width:100px"></div><div class="mb-3"><label class="form-label">Варианты ответов</label><div class="answers-container" data-q="${qCount}"><div class="answer-row mb-2"><input type="text" name="answers_${qCount}[]" class="form-control mb-1" placeholder="Вариант ответа 1" required><div class="form-check"><input class="form-check-input" type="checkbox" name="correct_${qCount}[]" value="0"><label class="form-check-label">Правильный ответ</label></div></div></div><button type="button" class="btn btn-sm btn-secondary add-answer" data-q="${qCount}">+ Добавить вариант</button></div><button type="button" class="btn btn-danger btn-sm remove-question">Удалить вопрос</button></div>`;
+    c.appendChild(div); qCount++;
+};
+document.addEventListener('click',function(e){
+    if(e.target.classList.contains('add-answer')){
+        const q=e.target.dataset.q,container=document.querySelector(`.answers-container[data-q="${q}"]`),idx=container.children.length,div=document.createElement('div');
+        div.className='answer-row mb-2';
+        div.innerHTML=`<input type="text" name="answers_${q}[]" class="form-control mb-1" placeholder="Вариант ответа ${idx+1}" required><div class="form-check"><input class="form-check-input" type="checkbox" name="correct_${q}[]" value="${idx}"><label class="form-check-label">Правильный ответ</label></div><button type="button" class="btn btn-sm btn-danger remove-answer mt-1">Удалить</button>`;
+        container.appendChild(div);
+    }
+    if(e.target.classList.contains('remove-question')) e.target.closest('.question-item').remove();
+    if(e.target.classList.contains('remove-answer')) e.target.closest('.answer-row').remove();
+});
+</script>
+{% endblock %}

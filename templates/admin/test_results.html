@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Результаты: {{ test.title }}</h2>
+    <div class="row mb-4">
+        <div class="col-md-4"><div class="card bg-primary text-white"><div class="card-body"><h3>{{ total }}</h3><p>Всего</p></div></div></div>
+        <div class="col-md-4"><div class="card bg-success text-white"><div class="card-body"><h3>{{ passed }}</h3><p>Сдали</p></div></div></div>
+        <div class="col-md-4"><div class="card bg-info text-white"><div class="card-body"><h3>{{ avg_percentage }}%</h3><p>Средний</p></div></div></div>
+    </div>
+    {% if results %}
+    <table class="table table-hover"><thead class="table-dark"><tr><th>Студент</th><th>Группа</th><th>Баллы</th><th>Результат</th><th>Дата</th><th>Детали</th></tr></thead><tbody>{% for r in results %}<tr><td>{{ r.full_name }}</td><td>{{ r.group_name or '-' }}</td><td>{{ r.score }}/{{ r.max_score }}</td><td><div class="progress"><div class="progress-bar" style="width:{{ r.percentage }}%">{{ "%.1f"|format(r.percentage) }}%</div></div></td><td>{{ r.completed_at[:16] }}</td><td><a href="{{ url_for('admin_student_result_detail', result_id=r.id) }}" class="btn btn-sm btn-info">Подробнее</a></td></tr>{% endfor %}</tbody></table>
+    {% else %}<div class="alert alert-info">Нет результатов</div>{% endif %}
+    <a href="{{ url_for('admin_tests') }}" class="btn btn-secondary">← Назад</a>
+</div>
+{% endblock %}
