@@ -1,22 +1,52 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container" style="max-width: 500px; margin-top: 100px;">
-    <div class="card">
-        <div class="card-header text-center"><h3>Вход в систему</h3></div>
-        <div class="card-body">
-            {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-            <form method="POST">
-                <div class="mb-3"><input type="text" name="username" class="form-control" placeholder="Имя пользователя" required></div>
-                <div class="mb-3"><input type="password" name="password" class="form-control" placeholder="Пароль" required></div>
-                <button type="submit" class="btn btn-primary w-100">Войти</button>
-            </form>
-            <hr>
-            <div class="text-muted small">
-                <p class="mb-1"><strong></strong></p>
-                <p class="mb-1"></p>
-                <p class="mb-0"></p>
+<div class="login-container">
+    <div class="login-card">
+        <h2 class="text-center mb-4">📚 Система контроля знаний</h2>
+        
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        
+        <form method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">Имя пользователя</label>
+                <input type="text" class="form-control" id="username" name="username" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Войти</button>
+        </form>
     </div>
 </div>
+
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .login-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 10px;
+    }
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+</style>
 {% endblock %}
