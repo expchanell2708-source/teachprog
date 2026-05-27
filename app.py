@@ -130,30 +130,40 @@ def admin_create_test():
             form_data = request.form
             questions_text = form_data.getlist('question_text[]')
             points_list = form_data.getlist('points[]')
+            question_types = form_data.getlist('question_type[]')
 
             for idx, question_text in enumerate(questions_text):
                 if not question_text:
                     continue
                 points = points_list[idx] if idx < len(points_list) else 1
+                q_type = question_types[idx] if idx < len(question_types) else 'single'
 
                 cursor.execute('''
-                    INSERT INTO questions (test_id, question_text, points)
-                    VALUES (?, ?, ?)
-                ''', (test_id, question_text, points))
+                    INSERT INTO questions (test_id, question_text, question_type, points)
+                    VALUES (?, ?, ?, ?)
+                ''', (test_id, question_text, q_type, points))
                 question_id = cursor.lastrowid
 
-                answer_key = f'answers_{idx}[]'
-                correct_key = f'correct_{idx}[]'
-                answers = form_data.getlist(answer_key)
-                correct_answers = form_data.getlist(correct_key)
+                if q_type == 'single':
+                    answer_key = f'answers_{idx}[]'
+                    correct_key = f'correct_{idx}'
+                    answers = form_data.getlist(answer_key)
+                    correct_answer = form_data.get(correct_key)
 
-                for ans_idx, answer_text in enumerate(answers):
-                    if answer_text:
-                        is_correct = 1 if str(ans_idx) in correct_answers else 0
+                    for ans_idx, answer_text in enumerate(answers):
+                        if answer_text.strip():
+                            is_correct = 1 if str(ans_idx) == correct_answer else 0
+                            cursor.execute('''
+                                INSERT INTO answers (question_id, answer_text, is_correct)
+                                VALUES (?, ?, ?)
+                            ''', (question_id, answer_text.strip(), is_correct))
+                else:  # open
+                    open_answer = form_data.get(f'open_answer_{idx}', '').strip()
+                    if open_answer:
                         cursor.execute('''
                             INSERT INTO answers (question_id, answer_text, is_correct)
                             VALUES (?, ?, ?)
-                        ''', (question_id, answer_text, is_correct))
+                        ''', (question_id, open_answer, 1))
 
         return redirect(url_for('admin_tests'))
 
@@ -356,13 +366,27 @@ def admin_edit_user(user_id):
 def admin_delete_user(user_id):
     with db.get_connection() as conn:
         cursor = conn.cursor()
+        
+        # Нельзя удалить самого себя
         if user_id == session['user_id']:
             return jsonify({'success': False, 'error': 'Нельзя удалить самого себя'}), 400
-
-        cursor.execute('DELETE FROM teacher_groups WHERE teacher_id=?', (user_id,))
+        
+        # Удаляем ответы студента
+        cursor.execute('''
+            DELETE FROM student_answers 
+            WHERE result_id IN (SELECT id FROM test_results WHERE student_id=?)
+        ''', (user_id,))
+        
+        # Удаляем результаты тестов студента
         cursor.execute('DELETE FROM test_results WHERE student_id=?', (user_id,))
+        
+        # Удаляем тесты, созданные пользователем (и всё связанное)
+        cursor.execute('DELETE FROM tests WHERE created_by=?', (user_id,))
+        
+        # Удаляем пользователя
         cursor.execute('DELETE FROM users WHERE id=?', (user_id,))
-        return jsonify({'success': True})
+        
+        return jsonify({'success': True, 'message': 'Пользователь удалён'})
 
 # ==================== СТУДЕНТ ====================
 
@@ -432,6 +456,7 @@ def take_test(test_id):
                 questions[q_id] = {
                     'id': q_id,
                     'text': row['question_text'],
+                    'type': row['question_type'] if 'question_type' in row.keys() else 'single',
                     'points': row['points'],
                     'answers': []
                 }
@@ -448,7 +473,8 @@ def take_test(test_id):
 def submit_test(test_id):
     with db.get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT id, points FROM questions WHERE test_id=?', (test_id,))
+
+        cursor.execute('SELECT id, points, question_type FROM questions WHERE test_id=?', (test_id,))
         questions = cursor.fetchall()
 
         max_score = sum(q['points'] for q in questions)
@@ -463,27 +489,39 @@ def submit_test(test_id):
         for question in questions:
             q_id = question['id']
             points = question['points']
+            q_type = question['question_type']
             user_answers = request.form.getlist(f'question_{q_id}')
 
-            cursor.execute('SELECT id FROM answers WHERE question_id=? AND is_correct=1', (q_id,))
-            correct_answers = [a['id'] for a in cursor.fetchall()]
+            if q_type == 'open':
+                cursor.execute('SELECT answer_text FROM answers WHERE question_id=? AND is_correct=1', (q_id,))
+                correct_row = cursor.fetchone()
+                correct_text = correct_row['answer_text'].strip().lower() if correct_row else ''
+                user_text = user_answers[0].strip().lower() if user_answers else ''
+                is_correct = (user_text == correct_text and user_text != '')
 
-            is_correct = False
-            if len(correct_answers) == 1 and len(user_answers) == 1:
-                is_correct = int(user_answers[0]) == correct_answers[0]
-            elif len(correct_answers) > 1:
-                user_set = set(int(a) for a in user_answers)
-                correct_set = set(correct_answers)
-                is_correct = user_set == correct_set
+                if is_correct:
+                    user_score += points
 
-            if is_correct:
-                user_score += points
-
-            for answer_id in user_answers:
                 cursor.execute('''
                     INSERT INTO student_answers (result_id, question_id, answer_id, is_correct)
                     VALUES (?, ?, ?, ?)
-                ''', (result_id, q_id, answer_id, is_correct))
+                ''', (result_id, q_id, -1, is_correct))
+            else:
+                cursor.execute('SELECT id FROM answers WHERE question_id=? AND is_correct=1', (q_id,))
+                correct_answers = [str(a['id']) for a in cursor.fetchall()]
+
+                is_correct = False
+                if len(correct_answers) == 1 and len(user_answers) == 1:
+                    is_correct = user_answers[0] in correct_answers
+
+                if is_correct:
+                    user_score += points
+
+                for answer_id in user_answers:
+                    cursor.execute('''
+                        INSERT INTO student_answers (result_id, question_id, answer_id, is_correct)
+                        VALUES (?, ?, ?, ?)
+                    ''', (result_id, q_id, answer_id, is_correct))
 
         percentage = (user_score / max_score * 100) if max_score > 0 else 0
         cursor.execute('UPDATE test_results SET score=?, percentage=? WHERE id=?',
@@ -525,7 +563,8 @@ def test_result(result_id):
                     'points': ans['points'],
                     'answers': []
                 }
-            questions_dict[q_id]['answers'].append(ans['answer_text'])
+            if ans['answer_text']:
+                questions_dict[q_id]['answers'].append(ans['answer_text'])
 
         cursor.execute('''
             SELECT q.id as question_id, a.answer_text
