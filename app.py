@@ -112,12 +112,26 @@ def admin_tests():
 @login_required
 @role_required('admin')
 def admin_create_test():
+    print("\n" + "="*60)
+    print("=== ФУНКЦИЯ admin_create_test ВЫЗВАНА ===")
+    print(f"Метод запроса: {request.method}")
+    print("="*60)
+    
     user = get_current_user()
 
     if request.method == 'POST':
+        print("\n--- ОБРАБОТКА POST ЗАПРОСА ---")
+        print(f"Все ключи формы: {list(request.form.keys())}")
+        print(f"Все данные формы: {dict(request.form)}")
+        print("-" * 40)
+        
         title = request.form.get('title')
         description = request.form.get('description')
         target_groups = ','.join(request.form.getlist('target_groups'))
+        
+        print(f"Название теста: {title}")
+        print(f"Описание: {description}")
+        print(f"Целевые группы: {target_groups}")
 
         with db.get_connection() as conn:
             cursor = conn.cursor()
@@ -126,51 +140,92 @@ def admin_create_test():
                 VALUES (?, ?, ?, ?)
             ''', (title, description, user['id'], target_groups))
             test_id = cursor.lastrowid
+            print(f"\n✓ Тест создан, ID: {test_id}")
 
             form_data = request.form
             questions_text = form_data.getlist('question_text[]')
             points_list = form_data.getlist('points[]')
             question_types = form_data.getlist('question_type[]')
+            
+            print(f"\nКоличество вопросов: {len(questions_text)}")
+            print(f"Типы вопросов: {question_types}")
+            print(f"Баллы: {points_list}")
 
             for idx, question_text in enumerate(questions_text):
+                print(f"\n--- Обработка вопроса {idx} ---")
+                print(f"Текст вопроса: {question_text}")
+                
                 if not question_text:
+                    print("  ⚠ Вопрос пуст, пропускаем")
                     continue
+                
                 points = points_list[idx] if idx < len(points_list) else 1
                 q_type = question_types[idx] if idx < len(question_types) else 'single'
+                
+                print(f"  Баллы: {points}")
+                print(f"  Тип вопроса: {q_type}")
 
                 cursor.execute('''
                     INSERT INTO questions (test_id, question_text, question_type, points)
                     VALUES (?, ?, ?, ?)
                 ''', (test_id, question_text, q_type, points))
                 question_id = cursor.lastrowid
+                print(f"  ✓ Вопрос создан, ID: {question_id}")
 
                 if q_type == 'single':
+                    print("  → Обработка одиночного выбора")
                     answer_key = f'answers_{idx}[]'
                     correct_key = f'correct_{idx}'
                     answers = form_data.getlist(answer_key)
                     correct_answer = form_data.get(correct_key)
+                    
+                    print(f"    Варианты ответов: {answers}")
+                    print(f"    Правильный ответ (индекс): {correct_answer}")
 
                     for ans_idx, answer_text in enumerate(answers):
-                        if answer_text.strip():
+                        if answer_text and answer_text.strip():
                             is_correct = 1 if str(ans_idx) == correct_answer else 0
                             cursor.execute('''
                                 INSERT INTO answers (question_id, answer_text, is_correct)
                                 VALUES (?, ?, ?)
                             ''', (question_id, answer_text.strip(), is_correct))
-                else:  # open
-                    open_answer = form_data.get(f'open_answer_{idx}', '').strip()
+                            print(f"      + Ответ {ans_idx}: '{answer_text}' (правильный: {is_correct})")
+                        else:
+                            print(f"      - Ответ {ans_idx} пуст, пропущен")
+                
+                elif q_type == 'open':
+                    print("  → Обработка открытого ответа")
+                    open_answer_key = f'open_answer_{idx}'
+                    open_answer = form_data.get(open_answer_key, '').strip()
+                    print(f"    Правильный ответ: '{open_answer}'")
+                    
                     if open_answer:
                         cursor.execute('''
                             INSERT INTO answers (question_id, answer_text, is_correct)
                             VALUES (?, ?, ?)
                         ''', (question_id, open_answer, 1))
+                        print("    ✓ Правильный ответ сохранён")
+                    else:
+                        print("    ⚠ Правильный ответ пуст, вопрос не сохранён")
+                
+                else:
+                    print(f"  ⚠ Неизвестный тип вопроса: {q_type}")
 
+        print("\n" + "="*60)
+        print("=== ТЕСТ УСПЕШНО СОЗДАН ===")
+        print("="*60 + "\n")
+        
         return redirect(url_for('admin_tests'))
 
+    # GET запрос
+    print("\n--- GET ЗАПРОС (показ формы) ---")
     with db.get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT DISTINCT group_name FROM users WHERE role="student" AND group_name IS NOT NULL')
+        cursor.execute('SELECT DISTINCT group_name FROM users WHERE role="student" AND group_name IS NOT NULL AND group_name != ""')
         groups = [row['group_name'] for row in cursor.fetchall()]
+        print(f"Найдено групп: {groups}")
+    
+    print("="*60 + "\n")
     return render_template('admin/create_test.html', groups=groups)
 
 @app.route('/admin/test/<int:test_id>')
