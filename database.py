@@ -116,39 +116,7 @@ class Database:
             #Группа 1
             ("student", "student123", "Баров Данила Михайлович", "student", "1"),
             ("student1", "student123", "Петров Петр Петрович", "student", "2"),
-            ("student2", "student123", "Сидорова Анна Сергеевна", "student", "3"),
-            ("BazhinaVS", "Bazhina_Victoria", "Бажина Виктория Сергеевна", "student", "1"),
-            ("BalobanovYV", "BalobanovYaroslav", "Балобанов Ярослав Владимирович", "student", "1"),
-            ("BalobanovaVD", "BalobanovaValeriya", "Балобанова Валерия Денисовна", "student", "1"),
-            ("BondarevaEM", "BondarevaEkaterina", "Бондарева Екатерина Максимовна", "student", "1"),
-            ("VagizovNI", "VagizovNiyaz", "Вагизов Нияз Ильгизович", "student", "1"),
-            ("GadrshinLM", "GadrshinLenar", "Гадршин Ленар Маратович", "student", "1"),
-            ("GruzdevaAS", "GrusdevaAnna", "Груздева Анна Сергеевна", "student", "1"),
-            ("Dmitriev-LepehinFE", "FeliksEvgenevich", "Дмитриев-Лепихин Феликс Евгеньевич", "student", "1"),
-            ("DonaurovAE", "DonaurovAndrei", "Донауров Андрей Евгеньевич", "student", "1"),
-            ("ZaharovaTA", "ZaharovaTaisia", "Захарова Таисия Александровна", "student", "1"),
-            # Группа 2
-            ("IvanovDD", "IvanovDanil", "Иванов Данил Дмитриевич", "student", "2"),
-            ("IkonnkiovLM", "IkonnikovLev", "Иконников Лев Михайлович", "student", "2"),
-            ("KankasovKE", "KankasovKonstantin", "Канкасов Константин Эдуардович", "student", "2"),
-            ("KozeevRO", "KozeevRoman", "Козеев Роман Олегович", "student", "2"),
-            ("KostinaVD", "KostinaValeriya", "Костина Валерия Дмитриевна", "student", "2"),
-            ("KuznecovIS", "KuznecovIvan", "Кузнецов Иван Сергеевич", "student", "2"),
-            ("MarkovaOA", "VarkovaOlga", "Маркова Ольга Алексеевна", "student", "2"),
-            ("MihalevaAO", "MihalevaAnastasia", "Михалева Анастасия Олеговна", "student", "2"),
-            ("MicevichPA", "MicevichPolina", "Мицевич Полина Александровна", "student", "2"),
-            ("MormishevAA", "MormishevAleksandr", "Мормышев Александр Александрович", "student", "2"),
-            # Группа 3
-            ("MuhametzyanovTF", "MuhametzyanovTimur", "Мухаметзянов Тимур Фанисович", "student", "3"),
-            ("OnohinUA", "OnohinUryi", "Онохин Юрий Алексеевич", "student", "3"),
-            ("PotaninaAN", "PotaninaAnastsia", "Потанина Анастасия Николаевна", "student", "3"),
-            ("SazhinPA", "SazhinPavel", "Сажин Павел Александрович", "student", "3"),
-            ("SafiullinaSE", "SafiullinaSofia", "Сафиуллина Софья Эдуардовна", "student", "3"),
-            ("SigaevaPP", "SigaevaPolimna", "Сигаева Полина Павловна", "student", "3"),
-            ("TerehinaDM", "TerehinaDiana", "Терехина Дана Михайловна", "student", "3"),
-            ("ChadaevaSS", "ChadaevsCofia", "Чадаева Софья Сергеевна", "student", "3"),
-            ("ShaggievTR", "ShagievTimur", "Шагиев Тимур Рафаэлевич", "student", "3"),
-            
+            ("student2", "student123", "Сидорова Анна Сергеевна", "student", "3"),  
         ]
 
         for username, password, full_name, role, group_name in users:
